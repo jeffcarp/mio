@@ -13,7 +13,8 @@
   ],
   "dependencies": {
     "component/type": "*",
-    "component/emitter": "*"
+    "component/emitter": "*",
+    "ForbesLindesay/is-browser": "*"
   },
   "main": "./lib/mio.js",
   "scripts": [
