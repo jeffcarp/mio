@@ -46,7 +46,27 @@ Exported validators shipped with mio.
 
 ### Model.attr(name[, options])
 
-### Model.use(fn)
+### Model.use([env, ]name|fn[, options])
+
+Use a plugin function that extends the model.
+
+* env `String` Either "browser" or "server". Optional.
+* plugin `String|Function` Function or name of module to require.
+* options `Mixed` If plugin is a string, additional arguments are passed to
+  required plugin module.
+
+```javascript
+User
+  .use(require('example-plugin'))
+  .use('browser', 'ajax-plugin', {
+    url: 'api.example.com'
+  })
+  .use('server', function() {
+    // this === User
+    console.log(this.displayName);
+    // => "User"
+  });
+```
 
 ### Model.displayName
 

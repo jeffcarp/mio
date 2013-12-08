@@ -84,6 +84,34 @@ describe('Model', function() {
       });
       Model.should.have.property('test', 1);
     });
+
+    it('treats "node" and "server" as the same environment', function(done) {
+      mio.createModel('user').use('node', function() {
+        this.use('server', function() {
+          done();
+        });
+      });
+    });
+
+    it('respects environment-specific plugins', function(done) {
+      mio.createModel('user')
+        .use('browser', function() {
+          throw new Error("browser plugin called from node");
+        })
+        .use('server', function() {
+          done();
+        });
+    });
+
+    it('passes additional arguments to plugin', function(done) {
+      mio.createModel('user')
+        .use(function(one, two, three) {
+          one.should.equal(1);
+          two.should.equal(2);
+          three.should.equal(3);
+          done();
+        }, 1, 2, 3);
+    });
   });
 
   describe('.create()', function() {
