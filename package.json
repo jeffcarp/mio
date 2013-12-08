@@ -1,0 +1,31 @@
+{
+  "name": "mio",
+  "description": "Modern idiomatic models for client and server.",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/alexmingoia/mio.git"
+  },
+  "keywords": [
+    "model",
+    "db",
+    "database",
+    "orm",
+    "sync",
+    "store"
+  ],
+  "dependencies": {
+    "emitter-component": "~1.1.1",
+    "type-component": "0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0",
+    "expect.js": "~0.2.0",
+    "should": "~2.1.1"
+  },
+  "main": "./lib/mio.js",
+  "scripts": {
+    "test": "node_modules/mocha/bin/mocha test"
+  },
+  "license": "MIT"
+}

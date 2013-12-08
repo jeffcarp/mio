@@ -1,0 +1,23 @@
+{
+  "name": "mio",
+  "description": "Small modern idiomatic models for client and server.",
+  "version": "0.1.0",
+  "repo": "alexmingoia/mio",
+  "keywords": [
+    "model",
+    "db",
+    "database",
+    "orm",
+    "sync",
+    "store"
+  ],
+  "dependencies": {
+    "component/type": "*",
+    "component/emitter": "*"
+  },
+  "main": "./lib/mio.js",
+  "scripts": [
+    "lib/mio.js"
+  ],
+  "license": "MIT"
+}
