@@ -50,6 +50,10 @@ Exported validators shipped with mio.
 
 ### Model.displayName
 
+### Model.adapter
+
+Storage adapter plugin.
+
 ### Model.validators
 
 Array of validator functions. Validation plugins should add their validator
@@ -99,7 +103,7 @@ Array of validation or other errors the model has encountered.
 
 ### Events
 
-#### Model
+#### Model events
 
 ##### initializing
 
@@ -137,7 +141,7 @@ Receives arguments `name` and `params`.
 
 Receives arguments `model` and `error`.
 
-#### Instance
+#### Instance events
 
 ##### setting
 
