@@ -1,6 +1,6 @@
 {
   "name": "mio",
-  "description": "Small modern idiomatic models for client and server.",
+  "description": "Modern idiomatic models for the browser and node.js.",
   "version": "0.1.0",
   "repo": "alexmingoia/mio",
   "keywords": [

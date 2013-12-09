@@ -2,8 +2,9 @@
 
 [![Build Status](https://secure.travis-ci.org/alexmingoia/mio.png)](http://travis-ci.org/alexmingoia/mio) 
 [![Dependency Status](https://david-dm.org/alexmingoia/mio.png)](http://david-dm.org/alexmingoia/mio)
+[![Coverage Status](https://coveralls.io/repos/alexmingoia/mio/badge.png?branch=master)](https://coveralls.io/r/alexmingoia/mio?branch=master)
 
-Modern idiomatic models for client and server.
+Modern idiomatic models for the browser and node.js.
 
 ## Installation
 
@@ -42,9 +43,21 @@ Create new model constructor with given `name`.
 
 ### mio.validators
 
-Exported validators shipped with mio.
+Exported array of validators shipped with mio.
 
 ### Model.attr(name[, options])
+
+Define an attribute with given `name` and `options`.
+
+```javascript
+User.attr('created_at', {
+  type: 'date',
+  required: true,
+  default: function() {
+    return new Date();
+  }
+});
+```
 
 ### Model.use([env, ]name|fn[, options])
 
@@ -68,7 +81,14 @@ User
   });
 ```
 
-### Model.displayName
+### Model.type
+
+```javascript
+var User = mio.createModel('user');
+
+console.log(User.type);
+// => "User"
+```
 
 ### Model.adapter
 
@@ -90,6 +110,47 @@ Plugins should use this object to store options.
 ### Model.count(query, callback)
 
 ### Model.removeAll(query, callback)
+
+### Model.hasMany(anotherModel, options)
+
+Define a "has many" relationship.
+
+```javascript
+User.hasMany(Post, { as: 'posts', foreignKey: 'user_id' });
+
+user.related('posts').all(function(err, posts) {
+  // ...
+});
+
+user.related('posts').create(function(body, function(err, post) {
+  // ...
+});
+```
+
+### Model.belongsTo(anotherModel, options)
+
+Define a "belongs to" relationship.
+
+```javascript
+User.belongsTo(Post, { as: 'author', foreignKey: 'user_id' });
+
+post.related('author').get(function(err, user) {
+  // ...
+});
+```
+
+### Model.hasAndBelongsToMany(anotherModel, options)
+
+Define a "has and belongs to many" relationship.
+
+```javascript
+User.hasAndBelongsToMany(Post, {
+  as: 'posts',
+  through: PostUser,
+  fromKey: 'user_id',
+  toKey: 'post_id'
+});
+```
 
 ### Model#save(callback)
 
@@ -120,6 +181,22 @@ Generate and add error to `model.errors` array, and emit "error" event.
 ### Model#errors
 
 Array of validation or other errors the model has encountered.
+
+### Model#related()
+
+### Model#related(relation).add(model[, ...], callback)
+
+### Model#related(relation).all([query, ]callback)
+
+### Model#related(relation).count([query, ]callback)
+
+### Model#related(relation).create([body, ]callback)
+
+### Model#related(relation).get([query, ]callback)
+
+### Model#related(relation).has(model[, ...], callback)
+
+### Model#related(relation).remove(model[, ...], callback)
 
 ### Events
 
