@@ -500,8 +500,7 @@ describe('Model', function() {
       var Model = mio.createModel('user')
         .attr('id', { primary: true, required: true })
         .use(function() {
-          this.adapter.remove = function(id, cb) {
-            id.should.equal(1);
+          this.adapter.remove = function(cb) {
             cb();
           };
         });
@@ -517,7 +516,7 @@ describe('Model', function() {
       var Model = mio.createModel('user')
         .attr('id', { primary: true, required: true })
         .use(function() {
-          this.adapter.remove = function(id, cb) {
+          this.adapter.remove = function(cb) {
             cb(new Error("test"));
           };
         });
