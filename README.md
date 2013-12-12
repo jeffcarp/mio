@@ -3,6 +3,7 @@
 [![Build Status](https://secure.travis-ci.org/alexmingoia/mio.png)](http://travis-ci.org/alexmingoia/mio) 
 [![Dependency Status](https://david-dm.org/alexmingoia/mio.png)](http://david-dm.org/alexmingoia/mio)
 [![Coverage Status](https://coveralls.io/repos/alexmingoia/mio/badge.png?branch=master)](https://coveralls.io/r/alexmingoia/mio?branch=master)
+[![NPM version](https://badge.fury.io/js/mio.png)](http://badge.fury.io/js/mio)
 
 Modern idiomatic models for the browser and node.js.
 
