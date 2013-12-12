@@ -1,7 +1,7 @@
 {
   "name": "mio",
   "description": "Modern idiomatic models for the browser and node.js.",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "repo": "alexmingoia/mio",
   "keywords": [
     "model",
@@ -18,7 +18,10 @@
   },
   "main": "./lib/mio.js",
   "scripts": [
-    "lib/mio.js"
+    "lib/mio.js",
+    "lib/model.js",
+    "lib/validators.js",
+    "lib/utils.js"
   ],
   "license": "MIT"
 }
