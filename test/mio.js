@@ -151,6 +151,31 @@ describe('Model', function() {
       });
     });
 
+    it('emits "before find" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('before find', function(query) {
+        should.exist(query);
+        done();
+      });
+      Model.find(1, function(err, model) {
+        if (err) return done(err);
+      });
+    });
+
+    it('emits "after find" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('after find', function(model) {
+        should.exist(model);
+        done();
+      });
+      Model.adapter.find = function(query, cb) {
+        cb(null, { id: 1 });
+      };
+      Model.find(1, function(err, model) {
+        if (err) return done(err);
+      });
+    });
+
     it('passes error from adapter to callback', function(done) {
       var Model = mio.createModel('user').attr('id', { primary: true });
       Model.adapter.find = function(query, cb) {
@@ -187,6 +212,28 @@ describe('Model', function() {
         collection.should.have.property('length', 1);
         collection[0].should.have.property('constructor', Model);
         done();
+      });
+    });
+
+    it('emits "before findAll" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('before findAll', function(query) {
+        should.exist(query);
+        done();
+      });
+      Model.findAll({ id: 1 }, function(err, collection) {
+        if (err) return done(err);
+      });
+    });
+
+    it('emits "after findAll" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('after findAll', function(collection) {
+        should.exist(collection);
+        done();
+      });
+      Model.findAll({ id: 1 }, function(err, collection) {
+        if (err) return done(err);
       });
     });
 
@@ -228,6 +275,28 @@ describe('Model', function() {
       });
     });
 
+    it('emits "before count" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('before count', function(query) {
+        should.exist(query);
+        done();
+      });
+      Model.count({ id: 1 }, function(err, count) {
+        if (err) return done(err);
+      });
+    });
+
+    it('emits "after count" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('after count', function(count) {
+        should.exist(count);
+        done();
+      });
+      Model.count({ id: 1 }, function(err, count) {
+        if (err) return done(err);
+      });
+    });
+
     it('passes error from adapter to callback', function(done) {
       var Model = mio.createModel('user').attr('id', { primary: true });
       Model.adapter.count = function(query, cb) {
@@ -261,6 +330,27 @@ describe('Model', function() {
       Model.removeAll(function(err) {
         if (err) return done(err);
         done();
+      });
+    });
+
+    it('emits "before removeAll" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('before removeAll', function(query) {
+        should.exist(query);
+        done();
+      });
+      Model.removeAll({ id: 1 }, function(err, removeAll) {
+        if (err) return done(err);
+      });
+    });
+
+    it('emits "after removeAll" event', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.on('after removeAll', function() {
+        done();
+      });
+      Model.removeAll({ id: 1 }, function(err) {
+        if (err) return done(err);
       });
     });
 
