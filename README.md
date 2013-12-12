@@ -59,7 +59,7 @@ User.attr('created_at', {
 });
 ```
 
-### Model.use([env, ]name|fn[, options])
+### Model.use([env, ]plugin[, options])
 
 Use a plugin function that extends the model.
 
@@ -71,7 +71,7 @@ Use a plugin function that extends the model.
 ```javascript
 User
   .use(require('example-plugin'))
-  .use('browser', 'ajax-plugin', {
+  .use('browser', 'mio-ajax', {
     url: 'api.example.com'
   })
   .use('server', function() {
@@ -184,7 +184,26 @@ Array of validation or other errors the model has encountered.
 
 ### Model#related()
 
+```javascript
+User.hasMany(Post, { as: 'posts', foreignKey: 'user_id' });
+
+user.related('posts').all(function(err, posts) {
+  // ...
+});
+```
+
 ### Model#related(relation).add(model[, ...], callback)
+
+```javascript
+// Add post instance(s)
+user.related('post').add(post1, post2, function(err) {});
+
+// Add array of post instances
+user.related('post').add([post1, post2], function(err) {});
+
+// Add posts by post id
+user.related('post').add(1, 3, function(err) {});
+```
 
 ### Model#related(relation).all([query, ]callback)
 
@@ -192,11 +211,41 @@ Array of validation or other errors the model has encountered.
 
 ### Model#related(relation).create([body, ]callback)
 
+```javascript
+// Create and save related post from attributes
+user.related('post').create({
+  title: 'Hello World',
+  content: 'My first post.',
+}, function(err, post) {
+  // ...
+});
+
+// Create multiple related posts by padding multiple attributes objects.
+user.related('post').create(
+  { title: 'Post 1' },
+  { title: 'Post 2' },
+  function(err, post1, post2) {
+    // ...
+  }
+);
+```
+
 ### Model#related(relation).get([query, ]callback)
 
 ### Model#related(relation).has(model[, ...], callback)
 
 ### Model#related(relation).remove(model[, ...], callback)
+
+```javascript
+// Remove post instance(s)
+user.related('post').remove(post1, post2, function(err) {});
+
+// Remove array of post instances
+user.related('post').remove([post1, post2], function(err) {});
+
+// Remove posts by post id
+user.related('post').remove(1, 3, function(err) {});
+```
 
 ### Events
 
