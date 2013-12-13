@@ -54,6 +54,39 @@ describe('Model', function() {
     model.name = 'alex';
   });
 
+  it('sets default values on initialization', function() {
+    var Model = mio.createModel('user')
+    .attr('id', {
+      primary: true
+    })
+    .attr('active', {
+      default: true
+    })
+    .attr('created_at', {
+      default: function() {
+        return new Date();
+      }
+    });
+  });
+
+  describe('.primary', function() {
+    var Model = mio.createModel('user').attr('id');
+
+    it('throws error on get if primary key is undefined', function() {
+      (function() {
+        var model = new Model({ id: 1 });
+        var id = model.primary;
+      }).should.throw('Primary key has not been defined.');
+    });
+
+    it('throws error on set if primary key is undefined', function() {
+      (function() {
+        var model = new Model({ id: 1 });
+        model.primary = 1;
+      }).should.throw('Primary key has not been defined.');
+    });
+  });
+
   describe('.attr()', function() {
     it('throws error if defining two primary keys', function() {
       var Model = mio.createModel('user');
