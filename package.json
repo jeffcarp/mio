@@ -22,11 +22,15 @@
   "devDependencies": {
     "mocha": "~1.14.0",
     "expect.js": "~0.2.0",
-    "should": "~2.1.1"
+    "should": "~2.1.1",
+    "coveralls": "~2.6.0",
+    "mocha-lcov-reporter": "0.0.1",
+    "jscoverage": "~0.3.8"
   },
   "main": "./lib/mio.js",
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha test"
+    "prepublish": "./node_modules/jscoverage/bin/jscoverage lib lib-cov",
+    "test": "MIO_COVERAGE=1 JSCOV=1 ./node_modules/mocha/bin/mocha test -R \"$([ ! -z \"$TRAVIS\" ] && echo mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js; [ -z \"$TRAVIS\" ] && echo nyan)\""
   },
   "license": "MIT"
 }

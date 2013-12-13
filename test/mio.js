@@ -1,4 +1,4 @@
-var mio = require('../lib/mio');
+var mio = process.env.JSCOV ? require('../lib-cov/mio') : require('../lib/mio');
 var should = require('should');
 
 describe('mio', function() {
