@@ -410,8 +410,9 @@ describe('Model', function() {
         foreignKey: 'user_id'
       };
       User.hasMany(Post, params);
-      should(User.relations).have.property('posts', params);
-      should(Post.relations).have.property('posts', params);
+
+      should(User.relations[0].as).equal("posts");
+      should(Post.relations[0].as).equal("posts");
     });
   });
 
@@ -424,8 +425,8 @@ describe('Model', function() {
         foreignKey: 'user_id'
       };
       Post.belongsTo(User, params);
-      should(User.relations).have.property('author', params);
-      should(Post.relations).have.property('author', params);
+      should(User.relations[0].as).equal("author");
+      should(Post.relations[0].as).equal("author");
     });
   });
 
@@ -433,13 +434,14 @@ describe('Model', function() {
     it('creates relations', function() {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      var params = {
         as: 'tags',
         fromKey: 'post_id',
         toKey: 'tag_id'
-      });
-      should(Tag.relations).have.property('tags');
-      should(Post.relations).have.property('tags');
+      };
+      Post.hasAndBelongsToMany(Tag, params);
+      should(Tag.relations[0].as).equal("tags");
+      should(Post.relations[0].as).equal("posts");
     });
   });
 
