@@ -67,6 +67,9 @@ describe('Model', function() {
         return new Date();
       }
     });
+    var model = new Model({ id: 1 });
+    model.active.should.equal(true);
+    model.created_at.should.be.instanceOf(Date);
   });
 
   describe('.primary', function() {
@@ -84,6 +87,13 @@ describe('Model', function() {
         var model = new Model({ id: 1 });
         model.primary = 1;
       }).should.throw('Primary key has not been defined.');
+    });
+
+    it('sets primary key attribute', function() {
+      Model = mio.createModel('user').attr('id', { primary: true });
+      var model = new Model();
+      model.primary = 3;
+      model.id.should.equal(3);
     });
   });
 
@@ -453,6 +463,14 @@ describe('Model', function() {
       var m2 = Model.create({ id: 1 });
       m2.isNew().should.equal(false);
     });
+
+    it('throws error if primary key has not been defined', function() {
+      var Model = mio.createModel('user').attr('id');
+      var model = Model.create();
+      (function() {
+        model.isNew();
+      }).should.throw("Primary key has not been defined.");
+    });
   });
 
   describe('#has()', function() {
@@ -620,6 +638,17 @@ describe('Model', function() {
         done();
       }).save(function(err) { });
     });
+
+    it('executes callback immediately if not changed', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      Model.adapter.save = function(changed, cb) {
+        should.not.exist(changed);
+        should.not.exist(cb);
+      };
+      var model = Model.create({ id: 1 });
+      model.dirtyAttributes.length = 0;
+      model.save(done);
+    });
   });
 
   describe('#remove()', function() {
@@ -713,7 +742,7 @@ describe('Model#related()', function() {
   });
 
   describe('.add()', function() {
-    it('associates models', function(done) {
+    it('associates many-to-many models', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
       Post.hasAndBelongsToMany(Tag, {
@@ -726,6 +755,44 @@ describe('Model#related()', function() {
         if (err) return done(err);
         should.exist(tag);
         tag.id.should.equal(1);
+        done();
+      });
+    });
+
+    it('associates one-to-many models', function(done) {
+      var User = mio.createModel('user').attr('id', { primary: true });
+      var Post = mio.createModel('post')
+        .attr('id', { primary: true })
+        .attr('user_id');
+      User.hasMany(Post, {
+        as: 'posts',
+        foreignKey: 'user_id'
+      });
+      var user = new User({id: 2});
+      var post = new Post({id: 1});
+      user.related('posts').add(post, function(err, post) {
+        if (err) return done(err);
+        should.exist(post);
+        post.user_id.should.equal(2);
+        done();
+      });
+    });
+
+    it('associates one-to-one models', function(done) {
+      var User = mio.createModel('user').attr('id', { primary: true });
+      var Post = mio.createModel('post')
+        .attr('id', { primary: true })
+        .attr('user_id');
+      Post.belongsTo(User, {
+        as: 'author',
+        foreignKey: 'user_id'
+      });
+      var user = new User({id: 2});
+      var post = new Post({id: 1});
+      post.related('author').add(user, function(err, user) {
+        if (err) return done(err);
+        should.exist(user);
+        post.user_id.should.equal(2);
         done();
       });
     });

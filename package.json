@@ -30,7 +30,7 @@
   "main": "./lib/mio.js",
   "scripts": {
     "prepublish": "./node_modules/jscoverage/bin/jscoverage lib lib-cov",
-    "test": "MIO_COVERAGE=1 JSCOV=1 ./node_modules/mocha/bin/mocha test -R \"$([ ! -z \"$TRAVIS\" ] && echo mocha-lcov-reporter | ./node_modules/coveralls/bin/coveralls.js; [ -z \"$TRAVIS\" ] && echo nyan)\""
+    "test": "node ./lib/test-runner.js"
   },
   "license": "MIT"
 }
