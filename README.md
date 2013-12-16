@@ -1,10 +1,10 @@
 # mio
 
 [![Build Status](https://secure.travis-ci.org/alexmingoia/mio.png)](http://travis-ci.org/alexmingoia/mio) 
-[![Dependency Status](https://david-dm.org/alexmingoia/mio.png)](http://david-dm.org/alexmingoia/mio)
 [![Coverage Status](https://coveralls.io/repos/alexmingoia/mio/badge.png?branch=master)](https://coveralls.io/r/alexmingoia/mio?branch=master)
 [![Bower version](https://badge.fury.io/bo/mio.png)](http://badge.fury.io/bo/mio)
 [![NPM version](https://badge.fury.io/js/mio.png)](http://badge.fury.io/js/mio)
+[![Dependency Status](https://david-dm.org/alexmingoia/mio.png)](http://david-dm.org/alexmingoia/mio)
 
 Modern idiomatic models for the browser and node.js.
 
@@ -19,7 +19,7 @@ npm install mio
 Using [component][1]:
 
 ```sh
-npm install alexmingoia/mio
+component install alexmingoia/mio
 ```
 
 Using [bower][2]:
