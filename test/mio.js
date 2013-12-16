@@ -859,6 +859,20 @@ describe('Model#related()', function() {
   });
 
   describe('.all()', function() {
+    it('throws error if no adapter support', function() {
+      var Tag = mio.createModel('tag').attr('id', { primary: true });
+      var Post = mio.createModel('post').attr('id', { primary: true });
+      Post.hasAndBelongsToMany(Tag, {
+        as: 'tags',
+        fromKey: 'post_id',
+        toKey: 'tag_id'
+      });
+      var post = new Post({id: 1});
+      (function() {
+        post.related("tags").all(function() {});
+      }).should.throw("No storage adapter support for this method.");
+    });
+
     it('finds all related models', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
@@ -927,6 +941,20 @@ describe('Model#related()', function() {
   });
 
   describe('.count()', function() {
+    it('throws error if no adapter support', function() {
+      var Tag = mio.createModel('tag').attr('id', { primary: true });
+      var Post = mio.createModel('post').attr('id', { primary: true });
+      Post.hasAndBelongsToMany(Tag, {
+        as: 'tags',
+        fromKey: 'post_id',
+        toKey: 'tag_id'
+      });
+      var post = new Post({id: 1});
+      (function() {
+        post.related("tags").count(function() {});
+      }).should.throw("No storage adapter support for this method.");
+    });
+
     it('counts all related models', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
@@ -1007,7 +1035,7 @@ describe('Model#related()', function() {
         callback();
       };
       var post = new Post({id: 1});
-      post.related('author').create(function(err, author) {
+      post.related('author').create({ name: 'alex' }, function(err, author) {
         should.not.exist(err);
         should.exist(author);
         author.id.should.equal(3);
@@ -1044,17 +1072,17 @@ describe('Model#related()', function() {
 
     it('passes error to callback', function(done) {
       var User = mio.createModel('user').attr('id', { primary: true });
-      var Post = mio.createModel('post')
-        .attr('id', { primary: true }).attr('user_id');
-      Post.belongsTo(User, {
-        as: 'author',
-        foreignKey: 'user_id'
+      var Tag = mio.createModel('post').attr('id', { primary: true });
+      User.hasAndBelongsToMany(Tag, {
+        as: 'tags',
+        fromKey: 'tag_id',
+        toKey: 'user_id'
       });
-      User.adapter.save = function(changed, callback) {
+      Tag.adapter.save = function(changed, callback) {
         callback(new Error("test"));
       };
-      var post = new Post({id: 1});
-      post.related('author').create(function(err, author) {
+      var user = new User({id: 1});
+      user.related('tags').create(function(err, tag) {
         should.exist(err);
         err.should.have.property('message', "test");
         done();
