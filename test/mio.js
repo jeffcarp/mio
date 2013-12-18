@@ -72,6 +72,22 @@ describe('Model', function() {
     model.created_at.should.be.instanceOf(Date);
   });
 
+
+  it('provides mutable extras attribute', function() {
+    var User = mio.createModel('user').attr('id');
+    var user = new User;
+
+    // Exists
+    should.exist(user.extras);
+
+    // Is writable
+    user.extras.stuff = "things";
+    user.extras.stuff.should.equal("things");  
+
+    // Is not enumerable
+    Object.keys(user).indexOf('extras').should.equal(-1);
+  });
+
   describe('.primary', function() {
     var Model = mio.createModel('user').attr('id');
 
