@@ -13,6 +13,7 @@ Modern idiomatic models for the browser and node.js.
 * Attribute validators and defaults.
 * Computed properties (accessors) and sealed models.
 * Usable seamlessly across the browser and server.
+* Plugins specific to environment.
 * Tests and MIT license.
 
 ## Installation
