@@ -8,6 +8,16 @@
 
 Modern idiomatic models for the browser and node.js.
 
+Mio leverages modern browser support for ECMAScript 5 to provide accessors with
+validations, and enforce model attributes as the only enumerable properties.
+
+* Restrict enumerable properties to defined model attributes.
+* Events emitted for initialization, attribute changes, errors, etc.
+* Attribute validators and defaults.
+* Computed properties (accessors) and sealed models.
+* Usable seamlessly across the browser and server.
+* Tests and MIT license.
+
 ## Installation
 
 Using [npm][0]:
@@ -113,18 +123,51 @@ Plugins should use this object to store options.
 
 ### Model.find(id|query, callback)
 
+```javascript
+User.find(123, function(err, user) {
+  // ...
+});
+```
+
 ### Model.findAll(query, callback)
+
+```javascript
+User.findAll({
+  approved: true
+}, function(err, collection) {
+  console.log(collection);
+  // => [user1, user2, user3, ...]
+});
+```
 
 ### Model.count(query, callback)
 
+```javascript
+User.count(function(err, count) {
+  console.log(count);
+  // => 47
+});
+```
+
 ### Model.removeAll(query, callback)
+
+```javascript
+User.removeAll({
+  created: '2013-11-01'
+}, function(err) {
+  // ...
+});
+```
 
 ### Model.hasMany(anotherModel, options)
 
 Define a "has many" relationship.
 
 ```javascript
-User.hasMany(Post, { as: 'posts', foreignKey: 'user_id' });
+User.hasMany(Post, {
+  as: 'posts',
+  foreignKey: 'user_id'
+});
 
 user.related('posts').all(function(err, posts) {
   // ...
@@ -135,12 +178,26 @@ user.related('posts').create(function(body, function(err, post) {
 });
 ```
 
+You can also use another model to represent a relationship:
+
+```javascript
+Post.hasMany(Tag, {
+  as: 'tags',
+  through: PostTag, // model with "tag_id" and "post_id" properties
+  throughKey: 'tag_id',
+  foreignKey: 'post_id'
+});
+```
+
 ### Model.belongsTo(anotherModel, options)
 
 Define a "belongs to" relationship.
 
 ```javascript
-User.belongsTo(Post, { as: 'author', foreignKey: 'user_id' });
+User.belongsTo(Post, {
+  as: 'author',
+  foreignKey: 'user_id'
+});
 
 post.related('author').get(function(err, user) {
   // ...
@@ -153,22 +210,36 @@ Define a "has and belongs to many" relationship.
 
 ```javascript
 User.hasAndBelongsToMany(Post, {
-  as: 'posts',
-  through: PostUser,
-  fromKey: 'user_id',
-  toKey: 'post_id'
+  hasManyAs: 'posts',
+  belongsToAs: 'author',
+  foreignKey: 'user_id'
 });
 ```
 
 ### Model#save(callback)
 
+```javascript
+user.save(function(err) {
+  // ...
+});
+```
+
 ### Model#remove(callback)
+
+```javascript
+user.remove(function(err) {
+  // ...
+});
+```
 
 ### Model#[attr]
 
 ### Model#isNew()
 
 ### Model#isValid()
+
+Runs validators, repopulates model.errors array with any validation errors
+encountered, and returns a boolean of whether the model validated.
 
 ### Model#isDirty()
 
@@ -177,8 +248,6 @@ Whether the model has attributes that have changed since last sav.
 ### Model#changed()
 
 Return attributes changed since last save.
-
-### Model#set(attributes)
 
 ### Model#has(attribute)
 
@@ -190,7 +259,15 @@ Generate and add error to `model.errors` array, and emit "error" event.
 
 Array of validation or other errors the model has encountered.
 
-### Model#related()
+### Model#extras
+
+A mutable object for saving extra information pertaining to the model instance.
+
+### Model#related(relation)
+
+Returns query methods specific to the given `relation`, where `relation` is the
+`options.as` parameter defined with `Model.hasMany()`, `.belongsTo()`, or
+`.hasAndBelongsToMany()`.
 
 ```javascript
 User.hasMany(Post, { as: 'posts', foreignKey: 'user_id' });
@@ -215,7 +292,27 @@ user.related('post').add(1, 3, function(err) {});
 
 ### Model#related(relation).all([query, ]callback)
 
+```javascript
+user.related('post').all({
+  created_at: '2013-10-31'
+},
+function(err, collection) {
+  console.log(collection);
+  // => [post1, post2, post3, ...]
+});
+```
+
 ### Model#related(relation).count([query, ]callback)
+
+```javascript
+user.related('post').count({
+  created_at: '2013-10-31'
+},
+function(err, count) {
+  console.log(count);
+  // => 64
+});
+```
 
 ### Model#related(relation).create([body, ]callback)
 
@@ -240,7 +337,20 @@ user.related('post').create(
 
 ### Model#related(relation).get([query, ]callback)
 
+```javascript
+post.related('author').get(function(err, user) {
+  // ...
+});
+```
+
 ### Model#related(relation).has(model[, ...], callback)
+
+```javascript
+user.related('post').has(post, function(err, isRelated) {
+  console.log(isRelated);
+  // => true
+});
+```
 
 ### Model#related(relation).remove(model[, ...], callback)
 
