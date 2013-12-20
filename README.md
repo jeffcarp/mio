@@ -8,9 +8,6 @@
 
 Modern idiomatic models for the browser and node.js.
 
-Mio leverages modern browser support for ECMAScript 5 to provide accessors with
-validations, and enforce model attributes as the only enumerable properties.
-
 * Restrict enumerable properties to defined model attributes.
 * Events emitted for initialization, attribute changes, errors, etc.
 * Attribute validators and defaults.
