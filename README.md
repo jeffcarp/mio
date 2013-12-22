@@ -44,9 +44,18 @@ var mio = require('mio');
 var User = mio.createModel('user');
 
 User
-  .attr('id', { primary: true })
-  .attr('name', { required: true })
-  .attr('password', { required: true });
+  .attr('id', {
+    primary: true
+  })
+  .attr('name', {
+    required: true
+  })
+  .attr('created_at', {
+    required: true,
+    default: function() {
+      return new Date();
+    }
+  });
 
 var user = new User({ name: 'alex' });
 ```
@@ -167,16 +176,16 @@ User.hasMany(Post, {
   foreignKey: 'user_id'
 });
 
-user.related('posts').all(function(err, posts) {
+user.posts.all(function(err, posts) {
   // ...
 });
 
-user.related('posts').create(function(body, function(err, post) {
+user.posts.create(function(body, function(err, post) {
   // ...
 });
 ```
 
-You can also use another model to represent a relationship:
+Specify a model using `params.through` to relate the other two models:
 
 ```javascript
 Post.hasMany(Tag, {
@@ -192,24 +201,34 @@ Post.hasMany(Tag, {
 Define a "belongs to" relationship.
 
 ```javascript
-User.belongsTo(Post, {
+Post.belongsTo(User, {
   as: 'author',
   foreignKey: 'user_id'
 });
 
-post.related('author').get(function(err, user) {
+post.author.get(function(err, user) {
   // ...
 });
 ```
 
-### Model.hasAndBelongsToMany(anotherModel, options)
+### Model.hasOne(anotherModel, options)
 
-Define a "has and belongs to many" relationship.
+Define a "has one" relationship.
 
 ```javascript
-User.hasAndBelongsToMany(Post, {
-  hasManyAs: 'posts',
-  belongsToAs: 'author',
+User.hasOne(Subscription, {
+  as: 'subscription',
+  foreignKey: 'subscription_id'
+});
+```
+
+Specify a model using `params.through` to relate the other two models:
+
+```javascript
+User.hasOne(Group, {
+  as: 'group',
+  through: Membership,
+  throughKey: 'group_id',
   foreignKey: 'user_id'
 });
 ```
@@ -261,37 +280,36 @@ Array of validation or other errors the model has encountered.
 
 A mutable object for saving extra information pertaining to the model instance.
 
-### Model#related(relation)
+### Model#[relation]
 
-Returns query methods specific to the given `relation`, where `relation` is the
-`options.as` parameter defined with `Model.hasMany()`, `.belongsTo()`, or
-`.hasAndBelongsToMany()`.
+Query methods specific to `relation`, where `relation` is the `options.as`
+parameter defined with `Model.hasMany()`, `.belongsTo()`, or `.hasOne()`.
 
 ```javascript
 User.hasMany(Post, { as: 'posts', foreignKey: 'user_id' });
 
-user.related('posts').all(function(err, posts) {
+user.posts.all(function(err, posts) {
   // ...
 });
 ```
 
-### Model#related(relation).add(model[, ...], callback)
+### Model#[relation].add(model[, ...], callback)
 
 ```javascript
 // Add post instance(s)
-user.related('post').add(post1, post2, function(err) {});
+user.post.add(post1, post2, function(err) {});
 
 // Add array of post instances
-user.related('post').add([post1, post2], function(err) {});
+user.post.add([post1, post2], function(err) {});
 
 // Add posts by post id
-user.related('post').add(1, 3, function(err) {});
+user.post.add(1, 3, function(err) {});
 ```
 
-### Model#related(relation).all([query, ]callback)
+### Model#[relation].all([query, ]callback)
 
 ```javascript
-user.related('post').all({
+user.post.all({
   created_at: '2013-10-31'
 },
 function(err, collection) {
@@ -300,10 +318,10 @@ function(err, collection) {
 });
 ```
 
-### Model#related(relation).count([query, ]callback)
+### Model#[relation].count([query, ]callback)
 
 ```javascript
-user.related('post').count({
+user.post.count({
   created_at: '2013-10-31'
 },
 function(err, count) {
@@ -312,19 +330,20 @@ function(err, count) {
 });
 ```
 
-### Model#related(relation).create([body, ]callback)
+### Model#[relation].create([body, ]callback)
 
 ```javascript
 // Create and save related post from attributes
-user.related('post').create({
+user.post.create({
   title: 'Hello World',
   content: 'My first post.',
-}, function(err, post) {
+},
+function(err, post) {
   // ...
 });
 
 // Create multiple related posts by padding multiple attributes objects.
-user.related('post').create(
+user.post.create(
   { title: 'Post 1' },
   { title: 'Post 2' },
   function(err, post1, post2) {
@@ -333,34 +352,34 @@ user.related('post').create(
 );
 ```
 
-### Model#related(relation).get([query, ]callback)
+### Model#[relation].get([query, ]callback)
 
 ```javascript
-post.related('author').get(function(err, user) {
+post.author.get(function(err, user) {
   // ...
 });
 ```
 
-### Model#related(relation).has(model[, ...], callback)
+### Model#[relation].has(model[, ...], callback)
 
 ```javascript
-user.related('post').has(post, function(err, isRelated) {
+user.post.has(post, function(err, isRelated) {
   console.log(isRelated);
   // => true
 });
 ```
 
-### Model#related(relation).remove(model[, ...], callback)
+### Model#[relation].remove(model[, ...], callback)
 
 ```javascript
 // Remove post instance(s)
-user.related('post').remove(post1, post2, function(err) {});
+user.post.remove(post1, post2, function(err) {});
 
 // Remove array of post instances
-user.related('post').remove([post1, post2], function(err) {});
+user.post.remove([post1, post2], function(err) {});
 
 // Remove posts by post id
-user.related('post').remove(1, 3, function(err) {});
+user.post.remove(1, 3, function(err) {});
 ```
 
 ### Events

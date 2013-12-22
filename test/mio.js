@@ -456,18 +456,18 @@ describe('Model', function() {
     });
   });
 
-  describe('.hasAndBelongsToMany()', function() {
+  describe('.hasOne()', function() {
     it('creates relations', function() {
-      var Tag = mio.createModel('tag').attr('id', { primary: true });
-      var Post = mio.createModel('post').attr('id', { primary: true });
+      var User = mio.createModel('user').attr('id', { primary: true });
+      var Subscription = mio.createModel('subscription').attr('id', { primary: true });
       var params = {
-        as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        as: 'subscription',
+        throughKey: 'subscription_id',
+        foreignKey: 'user_id',
       };
-      Post.hasAndBelongsToMany(Tag, params);
-      should(Tag.relations[0].as).equal("tags");
-      should(Post.relations[0].as).equal("posts");
+      User.hasOne(Subscription, params);
+      should(User.relations[0].as).equal("subscription");
+      should(Subscription.relations[0].as).equal("subscription");
     });
   });
 
@@ -749,11 +749,11 @@ describe('Model', function() {
   });
 });
 
-describe('Model#related()', function() {
+describe('Model#[relation]', function() {
   it('throws error for invalid relation', function() {
     (function() {
       var Post = mio.createModel('post').attr('id', { primary: true });
-      var post = new Post({ id: 1 }).related('tags');
+      var post = new Post({ id: 1 }).relation('tags');
     }).should.throw('Relation "tags" not defined.');
   });
 
@@ -761,13 +761,13 @@ describe('Model#related()', function() {
     it('associates many-to-many models', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       var post = new Post({id: 1});
-      post.related('tags').add(new Tag({id: 1}), function(err, tag) {
+      post.tags.add(new Tag({id: 1}), function(err, tag) {
         if (err) return done(err);
         should.exist(tag);
         tag.id.should.equal(1);
@@ -786,7 +786,7 @@ describe('Model#related()', function() {
       });
       var user = new User({id: 2});
       var post = new Post({id: 1});
-      user.related('posts').add(post, function(err, post) {
+      user.posts.add(post, function(err, post) {
         if (err) return done(err);
         should.exist(post);
         post.user_id.should.equal(2);
@@ -805,7 +805,7 @@ describe('Model#related()', function() {
       });
       var user = new User({id: 2});
       var post = new Post({id: 1});
-      post.related('author').add(user, function(err, user) {
+      post.author.add(user, function(err, user) {
         if (err) return done(err);
         should.exist(user);
         post.user_id.should.equal(2);
@@ -816,16 +816,16 @@ describe('Model#related()', function() {
     it('associates array of ids', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.findAll = function(query, callback) {
         callback(null, [{ id: 1 }]);
       };
       var post = new Post({id: 1});
-      post.related('tags').add(1, function(err) {
+      post.tags.add(1, function(err) {
         if (err) return done(err);
         done();
       });
@@ -834,10 +834,10 @@ describe('Model#related()', function() {
     it("uses adapter method if provided", function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Post.adapter.related = {add: function(relation, related, callback) {
         related.should.contain(tag);
@@ -846,7 +846,7 @@ describe('Model#related()', function() {
       }};
       var post = new Post({id: 1});
       var tag = new Tag({id: 1});
-      post.related('tags').add(tag, function(err, tag) {
+      post.tags.add(tag, function(err, tag) {
         if (err) return done(err);
         should.exist(tag);
         tag.id.should.equal(2);
@@ -857,16 +857,16 @@ describe('Model#related()', function() {
     it('passes error to callback', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.findAll = function(query, callback) {
         callback(new Error("test"));
       };
       var post = new Post({id: 1});
-      post.related('tags').add(1, function(err) {
+      post.tags.add(1, function(err) {
         should.exist(err);
         err.should.have.property('message', 'test');
         done();
@@ -878,24 +878,24 @@ describe('Model#related()', function() {
     it('throws error if no adapter support', function() {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       var post = new Post({id: 1});
       (function() {
-        post.related("tags").all(function() {});
+        post.tags.all(function() {});
       }).should.throw("No storage adapter support for this method.");
     });
 
     it('finds all related models', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.related = {findAll: function(relation, query, callback) {
         should.exist(relation);
@@ -903,7 +903,7 @@ describe('Model#related()', function() {
         callback(null, [{id: 1}]);
       }};
       var post = new Post({id: 1});
-      post.related('tags').all(function(err, tags) {
+      post.tags.all(function(err, tags) {
         if (err) return done(err);
         should.exist(tags);
         should(tags).be.instanceOf(Array);
@@ -915,10 +915,10 @@ describe('Model#related()', function() {
     it('finds related models using query', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.related = {findAll: function(relation, query, callback) {
         should.exist(relation);
@@ -927,7 +927,7 @@ describe('Model#related()', function() {
         callback(null, [{id: 1}]);
       }};
       var post = new Post({id: 1});
-      post.related('tags').all({ id: 1 }, function(err, tags) {
+      post.tags.all({ id: 1 }, function(err, tags) {
         if (err) return done(err);
         should.exist(tags);
         should(tags).be.instanceOf(Array);
@@ -939,16 +939,16 @@ describe('Model#related()', function() {
     it('passes error to callback', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.related = {findAll: function(relation, query, callback) {
         callback(new Error("test"));
       }};
       var post = new Post({id: 1});
-      post.related('tags').all({ id: 1 }, function(err, tags) {
+      post.tags.all({ id: 1 }, function(err, tags) {
         should.exist(err);
         err.should.have.property('message', 'test');
         done();
@@ -960,30 +960,30 @@ describe('Model#related()', function() {
     it('throws error if no adapter support', function() {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       var post = new Post({id: 1});
       (function() {
-        post.related("tags").count(function() {});
+        post.tags.count(function() {});
       }).should.throw("No storage adapter support for this method.");
     });
 
     it('counts all related models', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.related = {count: function(relation, query, callback) {
         callback(null, 3);
       }};
       var post = new Post({id: 1});
-      post.related('tags').count(function(err, count) {
+      post.tags.count(function(err, count) {
         if (err) return done(err);
         should.exist(count);
         count.should.equal(3);
@@ -994,16 +994,16 @@ describe('Model#related()', function() {
     it('counts related models using query', function(done ) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.related = {count: function(relation, query, callback) {
         callback(null, 3);
       }};
       var post = new Post({id: 1});
-      post.related('tags').count({ id: 1 }, function(err, count) {
+      post.tags.count({ id: 1 }, function(err, count) {
         if (err) return done(err);
         should.exist(count);
         count.should.equal(3);
@@ -1014,16 +1014,16 @@ describe('Model#related()', function() {
     it('passes error to callback', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.related = {count: function(relation, query, callback) {
         callback(new Error("test"));
       }};
       var post = new Post({id: 1});
-      post.related('tags').count({ id: 1 }, function(err, count) {
+      post.tags.count({ id: 1 }, function(err, count) {
         should.exist(err);
         err.should.have.property('message', 'test');
         done();
@@ -1051,7 +1051,7 @@ describe('Model#related()', function() {
         callback();
       };
       var post = new Post({id: 1});
-      post.related('author').create({ name: 'alex' }, function(err, author) {
+      post.author.create({ name: 'alex' }, function(err, author) {
         should.not.exist(err);
         should.exist(author);
         author.id.should.equal(3);
@@ -1077,7 +1077,7 @@ describe('Model#related()', function() {
         callback(null, [new User({ id: 3 })]);
       }};
       var post = new Post({id: 1});
-      post.related('author').create(function(err, author) {
+      post.author.create(function(err, author) {
         should.not.exist(err);
         should.exist(author);
         author.id.should.equal(3);
@@ -1089,16 +1089,16 @@ describe('Model#related()', function() {
     it('passes error to callback', function(done) {
       var User = mio.createModel('user').attr('id', { primary: true });
       var Tag = mio.createModel('post').attr('id', { primary: true });
-      User.hasAndBelongsToMany(Tag, {
+      User.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'tag_id',
-        toKey: 'user_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Tag.adapter.save = function(changed, callback) {
         callback(new Error("test"));
       };
       var user = new User({id: 1});
-      user.related('tags').create(function(err, tag) {
+      user.tags.create(function(err, tag) {
         should.exist(err);
         err.should.have.property('message', "test");
         done();
@@ -1119,7 +1119,7 @@ describe('Model#related()', function() {
         callback(null, {id: 1});
       }};
       var post = new Post({id: 1});
-      post.related('author').get(function(err, user) {
+      post.author.get(function(err, user) {
         if (err) return done(err);
         should.exist(user);
         user.id.should.equal(1);
@@ -1138,7 +1138,7 @@ describe('Model#related()', function() {
         callback(new Error("test"));
       }};
       var post = new Post({id: 1});
-      post.related('author').get(function(err, user) {
+      post.author.get(function(err, user) {
         should.exist(err);
         err.should.have.property('message', "test");
         done();
@@ -1150,10 +1150,10 @@ describe('Model#related()', function() {
     it('determines whether model is related', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Post.adapter.related = {has: function(relation, related, callback) {
         should.exist(related);
@@ -1162,7 +1162,7 @@ describe('Model#related()', function() {
       }};
       var post = new Post({id: 1});
       var tag = new Tag({id: 2 });
-      post.related('tags').has(tag, function(err, related) {
+      post.tags.has(tag, function(err, related) {
         should.not.exist(err);
         should.exist(related);
         related.should.equal(true);
@@ -1173,17 +1173,17 @@ describe('Model#related()', function() {
     it('passes error to callback', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       Post.adapter.related = {has: function(relation, related, callback) {
         callback(new Error("test"));
       }};
       var post = new Post({id: 1});
       var tag = new Tag({id: 2 });
-      post.related('tags').has(tag, function(err, related) {
+      post.tags.has(tag, function(err, related) {
         should.exist(err);
         err.should.have.property('message', "test");
         done();
@@ -1204,7 +1204,7 @@ describe('Model#related()', function() {
       Post.adapter.save = User.adapter.save = function(changed, callback) {
         callback();
       };
-      user.related('posts').remove(post, function(err) {
+      user.posts.remove(post, function(err) {
         should.not.exist(err);
         post.should.have.property('user_id', null);
         done();
@@ -1214,10 +1214,10 @@ describe('Model#related()', function() {
     it("uses adapter's .remove() method if provided", function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       var post = new Post({id: 1});
       var tag1 = new Tag({id: 2 });
@@ -1229,7 +1229,7 @@ describe('Model#related()', function() {
         related[1].id.should.equal(3);
         callback();
       }};
-      post.related('tags').remove(tag1, tag2, function(err) {
+      post.tags.remove(tag1, tag2, function(err) {
         should.not.exist(err);
         done();
       });
@@ -1238,10 +1238,10 @@ describe('Model#related()', function() {
     it('passes error to callback', function(done) {
       var Tag = mio.createModel('tag').attr('id', { primary: true });
       var Post = mio.createModel('post').attr('id', { primary: true });
-      Post.hasAndBelongsToMany(Tag, {
+      Post.hasMany(Tag, {
         as: 'tags',
-        fromKey: 'post_id',
-        toKey: 'tag_id'
+        foreignKey: 'post_id',
+        throughKey: 'tag_id'
       });
       var post = new Post({id: 1});
       var tag1 = new Tag({id: 2 });
@@ -1249,7 +1249,7 @@ describe('Model#related()', function() {
       Post.adapter.related = { remove: function(relation, related, callback) {
         callback(new Error("test"));
       }};
-      post.related('tags').remove(tag1, tag2, function(err) {
+      post.tags.remove(tag1, tag2, function(err) {
         should.exist(err);
         err.should.have.property('message', 'test');
         done();
