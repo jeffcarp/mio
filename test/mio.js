@@ -88,6 +88,16 @@ describe('Model', function() {
     Object.keys(user).indexOf('extras').should.equal(-1);
   });
 
+  it('wraps callback methods to return thunks', function(done) {
+    var User = mio.createModel('user', { thunks: true });
+    User.attr('id', { primary: true });
+    var user = new User({ id: 1 });
+    var thunk = user.save();
+    should.exist(thunk);
+    thunk.should.have.type('function');
+    thunk(done);
+  });
+
   describe('.primary', function() {
     var Model = mio.createModel('user').attr('id');
 
