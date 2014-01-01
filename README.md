@@ -84,27 +84,29 @@ User.attr('created_at', {
 });
 ```
 
-### Model.use([env, ]plugin[, options])
+### Model.use(fn)
 
-Use a plugin function that extends the model.
-
-* env `String` Either "browser" or "server". Optional.
-* plugin `String|Function` Function or name of module to require.
-* options `Mixed` If plugin is a string, additional arguments are passed to
-  required plugin module.
+Use a plugin function that extends the model. Function is called with `Model` as
+the context and `Model` as the argument.
 
 ```javascript
 User
   .use(require('example-plugin'))
-  .use('browser', 'mio-ajax', {
-    url: 'api.example.com'
+  .browser(function() {
+    this.use(require('mio-ajax'));
   })
-  .use('server', function() {
-    // this === User
-    console.log(this.displayName);
-    // => "User"
+  .server(function() {
+    this.use(require('mio-mysql'));
   });
 ```
+
+### Model.browser(fn)
+
+Called when installed using bower or component.
+
+### Model.server(fn)
+
+Called when installed using npm.
 
 ### Model.type
 

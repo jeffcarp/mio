@@ -91,11 +91,23 @@ describe('Model', function() {
   it('wraps callback methods to return thunks', function(done) {
     var User = mio.createModel('user', { thunks: true });
     User.attr('id', { primary: true });
+    var Post = mio.createModel('post', { thunks: true });
+    Post.attr('id', { primary: true }).attr('user_id');
+    User.hasMany(Post, {
+      as: 'posts',
+      foreignKey: 'user_id'
+    });
     var user = new User({ id: 1 });
     var thunk = user.save();
     should.exist(thunk);
     thunk.should.have.type('function');
-    thunk(done);
+    thunk(function(err) {
+      if (err) return done(err);
+      var thunk = user.posts.create();
+      should.exist(thunk);
+      thunk.should.have.type('function');
+      done();
+    });
   });
 
   describe('.primary', function() {
@@ -152,34 +164,6 @@ describe('Model', function() {
         this.test = 1;
       });
       Model.should.have.property('test', 1);
-    });
-
-    it('treats "node" and "server" as the same environment', function(done) {
-      mio.createModel('user').use('node', function() {
-        this.use('server', function() {
-          done();
-        });
-      });
-    });
-
-    it('respects environment-specific plugins', function(done) {
-      mio.createModel('user')
-        .use('browser', function() {
-          throw new Error("browser plugin called from node");
-        })
-        .use('server', function() {
-          done();
-        });
-    });
-
-    it('passes additional arguments to plugin', function(done) {
-      mio.createModel('user')
-        .use(function(one, two, three) {
-          one.should.equal(1);
-          two.should.equal(2);
-          three.should.equal(3);
-          done();
-        }, 1, 2, 3);
     });
   });
 
@@ -1217,6 +1201,26 @@ describe('Model#[relation]', function() {
       user.posts.remove(post, function(err) {
         should.not.exist(err);
         post.should.have.property('user_id', null);
+        done();
+      });
+    });
+
+    it('removes related models by id', function(done) {
+      var User = mio.createModel('user').attr('id', { primary: true });
+      var Post = mio.createModel('post').attr('id', { primary: true }).attr('user_id');
+      User.hasMany(Post, {
+        as: 'posts',
+        foreignKey: 'user_id'
+      });
+      var user = new User({ id: 2 });
+      Post.adapter.find = function(query, cb) {
+        cb(null, { id: 1, user_id: 2 });
+      };
+      Post.adapter.save = function(changed, callback) {
+        callback();
+      };
+      user.posts.remove(1, function(err) {
+        should.not.exist(err);
         done();
       });
     });

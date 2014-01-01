@@ -1,7 +1,7 @@
 {
   "name": "mio",
   "description": "Modern idiomatic models for the browser and node.js.",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "repo": "alexmingoia/mio",
   "keywords": [
     "model",
@@ -12,7 +12,6 @@
     "store"
   ],
   "dependencies": {
-    "component/type": "*",
     "component/emitter": "*",
     "ForbesLindesay/is-browser": "*"
   },
