@@ -1,7 +1,7 @@
 {
   "name": "mio",
   "description": "Modern idiomatic models for the browser and node.js.",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "repo": "alexmingoia/mio",
   "keywords": [
     "model",
