@@ -60,6 +60,12 @@ User
 var user = new User({ name: 'alex' });
 ```
 
+## Community
+
+* [Plugins](https://github.com/alexmingoia/mio/wiki/Plugins/)
+* [Wiki](https://github.com/alexmingoia/mio/wiki/)
+* ##mio on irc.freenode.net
+
 ## API
 
 ### mio.createModel(name)
