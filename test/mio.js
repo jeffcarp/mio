@@ -1,6 +1,6 @@
 var mio = process.env.JSCOV ? require('../lib-cov/mio') : require('../lib/mio');
+var utils = process.env.JSCOV ? require('../lib-cov/utils') : require('../lib/utils');
 var should = require('should');
-var utils = require('../lib/utils.js');
 
 describe('mio', function() {
   describe('.createModel()', function() {
