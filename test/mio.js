@@ -1,4 +1,5 @@
 var mio = process.env.JSCOV ? require('../lib-cov/mio') : require('../lib/mio');
+var utils = process.env.JSCOV ? require('../lib-cov/utils') : require('../lib/utils');
 var should = require('should');
 
 describe('mio', function() {
@@ -6,6 +7,47 @@ describe('mio', function() {
     it('creates new models', function() {
       var Model = mio.createModel('user');
       Model.type.should.equal('User');
+    });
+  });
+});
+
+describe('utils', function() {
+  describe('type', function() {
+    it('handles type function', function() {
+      utils.type(function() {})
+        .should.equal("function");
+    });
+    it('handles type date', function() {
+      utils.type(new Date())
+        .should.equal("date");
+    });
+    it('handles type regexp', function() {
+      utils.type(new RegExp())
+        .should.equal("regexp");
+    });
+    it('handles type arguments', function() {
+      utils.type(arguments)
+        .should.equal("arguments");
+    });
+    it('handles type array', function() {
+      utils.type([])
+        .should.equal("array");
+    });
+    it('handles type null', function() {
+      utils.type(null)
+        .should.equal("null");
+    });
+    it('handles type undefined', function() {
+      utils.type(undefined)
+        .should.equal("undefined");
+    });
+    it('handles type object', function() {
+      utils.type({})
+        .should.equal("object");
+    });
+    it('handles type string', function() {
+      utils.type("")
+        .should.equal("string");
     });
   });
 });
