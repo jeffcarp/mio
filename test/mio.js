@@ -561,7 +561,7 @@ describe('Model', function() {
     });
   });
 
-  describe('#isValid()', function() {
+  describe('#validate()', function() {
     it('runs Model.validators functions', function(done) {
       var Model = mio.createModel('user')
         .attr('id', { primary: true })
@@ -571,9 +571,46 @@ describe('Model', function() {
           });
         });
       var model = Model.create({ id: 1 });
-      model.isValid();
+      model.validate();
     });
 
+    it('returns error or null', function(done) {
+      var Model = mio.createModel('user').attr('id', { primary: true });
+      var model = Model.create({ id: 1 });
+      var valid = model.validate();
+      should(valid).equal(null);
+      Model.validators.push(function(model, failed) {
+        failed.push({
+          attribute: 'id',
+          message: 'not a valid id'
+        });
+      });
+      model.validate().should.be.instanceOf(Error);
+      done();
+    });
+
+    it('validates type', function(done) {
+      var Model = mio.createModel('user').attr('id', {
+        type: 'number',
+        primary: true
+      })
+      .attr('function', { type: 'function' })
+      .attr('date', { type: 'date' })
+      .attr('regexp', { type: 'regexp' })
+      .attr('array', { type: 'array' });
+      var model = Model.create({
+        id: 1,
+        function: function() {},
+        date: new Date(),
+        regexp: new RegExp(),
+        array: []
+      });
+      model.validate();
+      done();
+    });
+  });
+
+  describe('#isValid()', function() {
     it('returns whether model is valid', function() {
       var Model = mio.createModel('user')
         .attr('id', { primary: true })
@@ -584,19 +621,6 @@ describe('Model', function() {
         });
       var model = Model.create({ id: 1 });
       model.isValid().should.equal(true);
-    });
-
-    it('adds errors to model.errors array', function() {
-      var Model = mio.createModel('user')
-        .attr('id', { primary: true })
-        .use(function() {
-          this.validators.push(function() {
-            this.error('id field is required', 'id');
-          });
-        });
-      var model = Model.create();
-      model.isValid().should.equal(false);
-      model.errors.length.should.equal(1);
     });
   });
 

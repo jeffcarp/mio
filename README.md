@@ -130,7 +130,7 @@ Storage adapter plugin.
 ### Model.validators
 
 Array of validator functions. Validation plugins should add their validator
-function here.
+function(s) here.
 
 ### Model.options
 
